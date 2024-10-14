@@ -1,0 +1,44 @@
+version: '3'
+services:
+
+  tomcat:
+    depends_on:
+      - db
+    build: .
+    image: tomcat:9.0-jdk18-openjdk-buster
+    environment:
+      - TZ="Asia/Shanghai"
+    ports:
+      - 8080:8080
+    volumes:
+      - targer/superhero-0.0.1-SNAPSHOT.war:/usr/local/tomcat/webapps
+    environment:
+      TZ: "Asia/Hong_Kong"
+    healthcheck:
+      test: curl -sS http://127.0.0.1:8080 || exit 1
+      interval: 2m
+      timeout: 10s
+      retries: 3
+    networks:
+      - web
+
+  db:
+    image: mysql:8.0.23
+    restart: always
+#    volumes:
+#      - table-init.sql:/docker-entrypoint-initdb.d/table-init.sql
+    environment:
+      MYSQL_ROOT_PASSWORD: devops
+      MYSQL_DATABASE: hero
+      MYSQL_USER: root
+      MYSQL_PASSWORD: 123456
+      TZ: "Asia/Hong_Kong"
+    ports:
+      - 3306:3306
+    networks:
+      - web
+
+networks:
+  web:
+    external: true
+
